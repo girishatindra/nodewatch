@@ -46,3 +46,59 @@ Unlike traditional security tools that rely on automated verdicts and machine-ge
 <hr>
 
 <br>
+
+# About
+
+<br>
+
+***What Does NodeWatch Do ?***
+
+NodeWatch captures live host traffic using Scapy and streams it to an interactive browser dashboard in real time. Traffic is presented in two forms: a paginated packet table with search and filtering, and an interactive network graph mapping every IP relationship observed during the capture session.
+For any external IP, the analyst can trigger on-demand OSINT enrichment via the IPQuery API returning geolocation, ASN, ISP, VPN,Tor,datacenter flags, a fraud risk score, and the geolocation plotted live on an interactive map. Every port links directly to the SANS Internet Storm Center for real-time community threat intelligence. Every service name links to contextual search. Every ASN links to an RDAP lookup engine.
+No automated threat verdicts. No cloud dependency. No infrastructure. One command and you're hunting.
+
+<br>
+<br>
+
+***What Tech Stack Does NodeWatch Use ?***
+
+- Scapy - Capturing live packets
+- Flask SocketIO - Streaming the packets to frontend
+- Flask - Backend
+- Alpine.js - Frontend
+- Vis.js - Interactive graphs
+- Leaflet.js - Interavtive maps
+
+<br>
+<br>
+
+***What Makes NodeWatch Different ?***
+
+Most tools are desgined to be user friendly with interpretation done by complex alogrithims and detection engines, NodeWatch lets the user interpret the data, It provides all the context required for a human to make a judgement, at its current form NodeWatch is host based and monitors the nodes connecting to the host, its primary purpose is to present data in different forms providing different angles to look from and provide the tools to gain context and build the evidence to make judgement and interptetations, currently NodeWatch is an MVP only providing packets as table and network graph with only ipquery and hyperlinks to SANS Internet Storm Center as OSINT tools
+
+<br>
+<br>
+
+***How To Use NodeWatch***
+
+1. Clone this repo
+   ```bash
+   git clone https://github.com/girishatindra/nodewatch.git
+   ```
+2. Start a virtual environment
+   ```bash
+   python -m venv venv
+   ```
+3. Intall the requirements
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Run the flask server
+   ```bash
+   flask --run app.py
+   ```
+To get a basic understanding on how to use it, you can watch the demo
+
+***Will NodeWatch Expand ?***
+
+Currently as an MVP NodeWatch only fullfills the basic idea behind it, its desgined to be expanded to add more kinds of visual representations etc

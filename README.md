@@ -2,7 +2,7 @@
 
 <div align="center">
   
-  <img width="70%" alt="NodeWatch" src="https://github.com/user-attachments/assets/fa260788-b18a-4405-971e-3b5844f6a843" />
+  <img width="70%" alt="NodeWatch" src="./docs/NodeWatch.png" />
 
 </div>
 
@@ -23,7 +23,7 @@
 
 <div align='center'>
 
- [![Demo Video](https://github.com/user-attachments/assets/cb7db475-f9cf-484b-aacc-98208648e306)](https://youtu.be/JX5Rtc5Ua7Q)
+ [![Demo Video](./docs/demo.png)](https://youtu.be/JX5Rtc5Ua7Q)
 
 
 </div>

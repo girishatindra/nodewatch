@@ -1,0 +1,174 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+    <div x-data="{
+        table: true, 
+        osint: false,
+        }"class="main">
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <div class="terminal-optns">
+                <span class="red"></span>
+                <span class="green"></span>
+                <span class="yellow"></span>
+            </div>
+
+            <div class="capture-btn" x-data>
+                <button @click="$store.sniffer.running ? stopCapture() : startCapture(); table = true">
+                    <span x-text="$store.sniffer.running ? '⏹ Stop' : '▶ Start'"></span>
+                </button>
+            </div>
+            <div class="graph-btn" x-data>
+                <button @click="showGraph(); table = ! table; stopCapture()"><i class="fa-solid fa-circle-nodes"></i> Graph</button>
+            </div>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='nodewatch.png') }}"/>
+            </div>
+        </div>
+            <!-- Packet Table -->
+         <table>
+            <thead x-data>
+                <tr>
+                    <th colspan="10">
+                    <div x-data class="nav-btn">
+                    <span x-text="`host: ${$store.sniffer.packets.length ? $store.sniffer.packets[0]['local_ip'] : '127.0.0.1'}`"></span>
+                    <span x-text="`${$store.sniffer.ipCount} unique nodes found`"></span>
+                    <div class="search" x-data>
+                        <select x-model="$store.sniffer.searchField">
+                            <option value="src_ip">SRC IP</option>
+                            <option value="dst_ip">DST IP</option>
+                            <option value="src_port">SRC PORT</option>
+                            <option value="dst_port">DST PORT</option>
+                            <option value="proto">PROTO</option>
+                            <option value="service">SERVICE</option>
+                            <option value="info">INFO</option>
+                            <option value="length">LENGTH</option>
+                        </select>
+                        <input type="text" x-model="$store.sniffer.searchQuery" placeholder="SEARCH..."/>
+
+                    </div>
+                    <button  @click="$store.sniffer.prevPage()":disabled="$store.sniffer.currentPage === 1">
+                    <i class="fa-solid fa-circle-arrow-left"></i>
+                    </button>
+                        <span x-text="`page ${$store.sniffer.currentPage} of ${$store.sniffer.totalPages}`"></span>
+                        <button @click="$store.sniffer.nextPage()" :disabled="$store.sniffer.currentPage === $store.sniffer.totalPages">
+                        <i class="fa-solid fa-circle-arrow-right"></i>
+                        </button>
+                        <span x-text="`${$store.sniffer.filteredPackets.length} total packets`"></span>
+                    </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>#</th>
+                    <th>SRC IP</th>
+                    <th>DST IP</th>
+                    <th>PROTO</th>
+                    <th>SRC PORT</th>
+                    <th>DST PORT</th>
+                    <th>SERVICE</th>
+                    <th>INFO</th>
+                    <th>LENGTH</th>
+                    <th>INTEL</th>
+
+                </tr>
+            </thead>
+            <tbody x-data>
+                <template x-for="(pkt, index) in $store.sniffer.currentPackets" :key="`${pkt.src_ip}:${pkt.src_port}-${pkt.dst_ip}:${pkt.dst_port}-${index}`;">
+                    <tr>
+                        <td><span x-text="index + 1"></span></td>
+                        <td><span x-text="pkt.src_ip"></span></td>
+                        <td><span x-text="pkt.dst_ip"></span></td>
+                        <td><span x-text="pkt.proto"></span></td>
+                        <td><a :href="pkt.src_port_url" target="_blank" rel="noopener noreferrer"><span x-text="pkt.src_port"></span></a></td>
+                        <td><a :href="pkt.dst_port_url" target="_blank" rel="noopener noreferrer"><span x-text="pkt.dst_port"></span></a></td>
+                        <td><a :href="pkt.service_url" target="_blank" rel="noopener noreferrer"><span x-text="pkt.service"></span></a></td>
+                        <td><span x-text="pkt.info"></span></td>
+                        <td><span x-text="pkt.length"></span></td>
+                        <td>
+                            <button @click="osint = true, $store.sniffer.get_ip(pkt.src_ip,pkt.dst_ip,false)"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+         </table>
+         <!-- Graph Container -->
+         <div x-show="! table" id="graph">          
+         </div>
+        <!-- OSINT Container-->
+        <div x-cloak x-data="{details: false, select: true}" x-show="osint || $store.sniffer.selectedIP['graph_ip']" id="osint-container">
+            <h1>INVESTIGATE IP</h1>
+            <template x-if="$store.ip.loading">
+            <span class="loading">loading...</span>
+            </template>
+            <template x-if="$store.ip.error">
+            <span class="error" x-text="'error: ' + $store.ip.error"></span>
+            </template>
+            <template x-if="$store.sniffer.osintMode === 'graph'">
+                <div x-data id="graph-osint">
+                    <div class="ip-details">
+                        <span class="ip-details-head"><b>ASN: </b><a :href="$store.ip.data['asn_url']" target="_blank" rel="noopener noreferrer"><span x-text="$store.ip.data['asn']"></span></a></span>
+                        <span class="ip-details-head"><b>ORG: </b><a :href="$store.ip.data['org_url']" target="_blank" rel="noopener noreferrer"><span x-text="$store.ip.data['org']"></span></a></span>
+                        <span class="ip-details-head"><b>ISP: </b><a :href="$store.ip.data['isp_url']" target="_blank" rel="noopener noreferrer"><span x-text="$store.ip.data['isp']"></span></a></span>
+                        <span class="ip-details-head"><b>MOBILE: </b><span x-text="$store.ip.data['is_mobile']"></span></span>
+                        <span class="ip-details-head"><b>VPN: </b><span x-text="$store.ip.data['is_vpn']"></span></span>
+                        <span class="ip-details-head"><b>TOR NODE: </b><span x-text="$store.ip.data['is_tor']"></span></span>
+                        <span class="ip-details-head"><b>DATACENTER: </b><span x-text="$store.ip.data['is_datacenter']"></span></span>
+                        <span class="ip-details-head"><b>RISK SCORE: </b><span x-text="$store.ip.data['risk_score']"></span></span>
+                        <span class="ip-details-head"><b>SANS IPINFO: </b><a :href="$store.ip.data['ip_url']" target="_blank" rel="noopener noreferrer"><span x-text="$store.ip.data['ip']"></span></a></span>
+                    </div>
+                    <div id="map"></div>
+                </div>
+            </template>
+            <template x-if="$store.sniffer.osintMode === 'table'">
+                <div id="table-osint">
+                <select x-show="select" @change="let val = $event.target.value; if(val){ ipQuery(val); details = true; $event.target.value = ''; $event.target.selectedIndex = 0; select = false} else alert('Select A Valid IP')">
+                    <option value="" selected>Select An IP</option>
+                    <option :value="$store.sniffer.selectedIP['src']" x-text="$store.sniffer.selectedIP['src']"></option>
+                    <option :value="$store.sniffer.selectedIP['dst']" x-text="$store.sniffer.selectedIP['dst']"></option>
+                </select>
+                <template x-if="details">
+                <div class="table-osint-details">
+                <div class="ip-details">
+                        <span class="ip-details-head"><b>ASN: </b><a :href="$store.ip.data['asn_url']" target="_blank" rel="noopener noreferrer"><span x-text="$store.ip.data['asn']"></a></span></span>
+                        <span class="ip-details-head"><b>ORG: </b><span x-text="$store.ip.data['org']"></span></span>
+                        <span class="ip-details-head"><b>ISP: </b><span x-text="$store.ip.data['isp']"></span></span>
+                        <span class="ip-details-head"><b>MOBILE: </b><span x-text="$store.ip.data['is_mobile']"></span></span>
+                        <span class="ip-details-head"><b>VPN: </b><span x-text="$store.ip.data['is_vpn']"></span></span>
+                        <span class="ip-details-head"><b>TOR NODE: </b><span x-text="$store.ip.data['is_tor']"></span></span>
+                        <span class="ip-details-head"><b>DATACENTER: </b><span x-text="$store.ip.data['is_datacenter']"></span></span>
+                        <span class="ip-details-head"><b>RISK SCORE: </b><span x-text="$store.ip.data['risk_score']"></span></span>
+                        <span class="ip-details-head"><b>SANS IPINFO: </b><a :href="$store.ip.data['ip_url']" target="_blank" rel="noopener noreferrer"><span x-text="$store.ip.data['ip']"></span></a></span>
+
+                    </div>
+                <div id="map"></div>
+                </div>
+                </template>
+                </div>
+            </template>
+            <button @click="osint = false; $store.sniffer.selectedIP = {}; $store.sniffer.osintMode = null; details = false; select = true">EXIT</button>
+        </div>
+    </div>
+       
+        
+    
+
+<script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
+
+
+</body>
+</html>

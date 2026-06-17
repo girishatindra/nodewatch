@@ -1,4 +1,4 @@
-# NodeWatch - network observation and OSINT threat-hunting platform
+# NodeWatch - Network Observation & OSINT Threat-hunting Platform
 
 <div align="center">
   
@@ -8,11 +8,11 @@
 
 <div align="center">
   
-[![BACKEND](https://img.shields.io/badge/Backend-Flask-skyblue?style=for-the-badge&labelColor=orange)](https://www.python.org/)
-[![Frontend](https://img.shields.io/badge/Frontend-alpine.js-skyblue?style=for-the-badge&labelColor=orange)](https://docs.python.org/3/library/tkinter.html)
-[![Graph](https://img.shields.io/badge/Graph-Vis.js-skyblue?style=for-the-badge&labelColor=orange)](https://pyinstaller.org)
-[![Map](https://img.shields.io/badge/MAP-Leaflet.js-skyblue?style=for-the-badge&labelColor=orange)](https://haveibeenpwned.com/api/v3)
-[![API](https://img.shields.io/badge/API-ipquery-skyblue?style=for-the-badge&labelColor=orange)](https://www.microsoft.com/en-in/windows?r=1)
+[![BACKEND](https://img.shields.io/badge/Backend-Flask-skyblue?style=for-the-badge&labelColor=orange)](https://flask.palletsprojects.com/en/stable/)
+[![Frontend](https://img.shields.io/badge/Frontend-alpine.js-skyblue?style=for-the-badge&labelColor=orange)](https://alpinejs.dev/)
+[![Graph](https://img.shields.io/badge/Graph-Vis.js-skyblue?style=for-the-badge&labelColor=orange)](https://visjs.org/)
+[![Map](https://img.shields.io/badge/MAP-Leaflet.js-skyblue?style=for-the-badge&labelColor=orange)](https://leafletjs.com/)
+[![API](https://img.shields.io/badge/API-ipquery-skyblue?style=for-the-badge&labelColor=orange)](https://ipquery.io/)
 
 </div>
 
@@ -23,7 +23,7 @@
 
 <div align='center'>
 
- <img width="70%" alt="demo" src="https://github.com/user-attachments/assets/cb7db475-f9cf-484b-aacc-98208648e306" />
+ [![Demo Video](https://github.com/user-attachments/assets/cb7db475-f9cf-484b-aacc-98208648e306)](https://youtu.be/JX5Rtc5Ua7Q)
 
 
 </div>
@@ -62,12 +62,18 @@ No automated threat verdicts. No cloud dependency. No infrastructure. One comman
 
 ***What Tech Stack Does NodeWatch Use ?***
 
-- Scapy - Capturing live packets
-- Flask SocketIO - Streaming the packets to frontend
-- Flask - Backend
-- Alpine.js - Frontend
-- Vis.js - Interactive graphs
-- Leaflet.js - Interavtive maps
+<br>
+
+| Layer | Technology | Purpose
+|-------|------------|--------|
+| Packet Capture | Scapy | Live host traffic capture |
+| Backend | Flask | Serves the dashboard |
+| Real-time Streaming | Flask-SocketIO | Streams packets to the browser |
+| Frontend | Alpine.js | Reactive UI state management | 
+| Network Graph | vis.js | Interactive IP relationship mapping |
+| Geolocation Map | Leaflet.js |Live IP geolocation plotting | 
+| OSINT | IPQuery API | IP enrichment and risk scoring |
+| Threat Intel | SANS Internet Storm Center | Port and IP threat intelligence |
 
 <br>
 <br>
@@ -79,26 +85,66 @@ Most tools are desgined to be user friendly with interpretation done by complex 
 <br>
 <br>
 
-***How To Use NodeWatch***
+***How Do I Run NodeWatch?***
 
-1. Clone this repo
-   ```bash
-   git clone https://github.com/girishatindra/nodewatch.git
-   ```
-2. Start a virtual environment
-   ```bash
-   python -m venv venv
-   ```
-3. Intall the requirements
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Run the flask server
-   ```bash
-   flask --run app.py
-   ```
-To get a basic understanding on how to use it, you can watch the demo
+NodeWatch requires root or administrator privileges for packet capture.
+
+```bash
+
+# 1. Clone the repo
+git clone https://github.com/girishatindra/nodewatch.git
+cd nodewatch
+
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Run the server
+python app.py
+```
+Then open http://127.0.0.1:5000 in your browser, click Start, and begin capturing.
+
+For a walkthrough of all features, watch the [demo](https://youtu.be/JX5Rtc5Ua7Q).
+
+<br>
+<br>
 
 ***Will NodeWatch Expand ?***
 
-Currently as an MVP NodeWatch only fullfills the basic idea behind it, its desgined to be expanded to add more kinds of visual representations etc
+Yes, NodeWatch is deliberately designed as an expandable foundation. The current MVP establishes the core architecture and philosophy. Planned expansions include:
+
+- Shodan & VirusTotal integration: deeper IP and domain intelligence
+- AbuseIPDB integration: community-reported malicious IP feed
+- PCAP and JSON export: save sessions for offline analysis
+- Timestamps: per-packet timing for timeline reconstruction
+- Additional visual representations: timeline view, protocol distribution charts
+- BPF filter input: analyst-defined capture filters
+
+The goal has always been the same: more context, more representations, more tools for the analyst to build evidence and make effective judgements.
+
+<br>
+<br>
+
+***Why Is It Named NodeWatch ?***
+
+The name points directly at the core function, observing the nodes communicating with the host and mapping their relationships. Watch, because the tool is passive by design. It observes. The analyst acts.
+
+<br>
+<br>
+
+***Why Did I Build This ?***
+
+It started as an idea for a lightweight SOC dashboard, but I wanted something with a distinct. While working with Scapy I noticed it leaves all interpretation to the user, it gives you the data and gets out of the way this desgin philosophy inspired me and became the foundation of NodeWatch.
+Initially I planned to integrate Shodan and VirusTotal from the start, but launching a focused MVP with a clean codebase felt more valuable than overbuilding. The architecture is intentionally simple and extensible, every planned feature has a clear place to fit.
+NodeWatch works best in controlled, lower-traffic environments where methodical human review is practical. For large-scale enterprise operations it would need significant expansion, but that's exactly what the roadmap is for.
+
+<br>
+<hr>
+<br>
+
+## :telephone_receiver: Contact
+Have questions, feedback, or suggestions? Feel free to reach out:
+-  [![Gmail](https://img.shields.io/badge/gmail-girishatindra@gmail.com-white?style=social&logo=gmail)](mailto:girishatindra@gmail.com)

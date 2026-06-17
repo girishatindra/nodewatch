@@ -139,7 +139,7 @@ def get_ip_query(ip):
         
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*",manage_session=False)
+socketio = SocketIO(app, cors_allowed_origins=['http://localhost:5000', 'http://127.0.0.1:5000'],manage_session=False,async_mode="threading")
 capture_running = False
 
 @app.route("/")
